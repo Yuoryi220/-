@@ -119,19 +119,66 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   return newRequire;
 })({"main.js":[function(require,module,exports) {
 var $siteList = $('.siteList');
-$('.addButton').on('click', function () {
-  var url = window.prompt('请输入您要添加的网址');
-  console.log(url);
+var $lastLi = $siteList.find('li.last');
+var x = localStorage.getItem('x');
+var xObject = JSON.parse(x);
+var hashMap = xObject || [{
+  logo: 'A',
+  url: 'https://www.acfun.cn'
+}, {
+  logo: 'B',
+  url: 'https://www.bilibili.com'
+}];
 
-  if (url.indexOf('http') === -1) {
+var simplifyUrl = function simplifyUrl(url) {
+  return url.replace('https://', '').replace('http://', '').replace('www.', '').replace(/\/.*/, ''); // 删除 / 开头的内容
+};
+
+var render = function render() {
+  $siteList.find('li:not(.last)').remove();
+  hashMap.forEach(function (node, index) {
+    var $li = $("<li>\n      <div class=\"site\">\n        <div class=\"logo\">".concat(node.logo, "</div>\n        <div class=\"link\">").concat(simplifyUrl(node.url), "</div>\n        <div class=\"close\">\n          <svg class=\"icon\">\n            <use xlink:href=\"#icon-close\"></use>\n          </svg>\n        </div>\n      </div>\n    </li>")).insertBefore($lastLi);
+    $li.on('click', function () {
+      window.open(node.url);
+    });
+    $li.on('click', '.close', function (e) {
+      e.stopPropagation(); // 阻止冒泡
+
+      hashMap.splice(index, 1);
+      render();
+    });
+  });
+};
+
+render();
+$('.addButton').on('click', function () {
+  var url = window.prompt('请问你要添加的网址是啥？');
+
+  if (url.indexOf('http') !== 0) {
     url = 'https://' + url;
   }
 
   console.log(url);
-  var $siteList = $('.siteList');
-  console.log($siteList);
-  var $lastLi = $siteList.find('li.last');
-  var $li = $("<li>\n        <a href=\"".concat(url, "\">\n           <div class=\"site\">\n              <div class=\"logo\">").concat(url[0], "</div>\n              <div class=\"link\">").concat(url, "</div>\n           </div>\n        </a>\n    </li>")).insertBefore($lastLi);
+  hashMap.push({
+    logo: simplifyUrl(url)[0].toUpperCase(),
+    url: url
+  });
+  render();
+});
+
+window.onbeforeunload = function () {
+  var string = JSON.stringify(hashMap);
+  localStorage.setItem('x', string);
+};
+
+$(document).on('keypress', function (e) {
+  var key = e.key;
+
+  for (var i = 0; i < hashMap.length; i++) {
+    if (hashMap[i].logo.toLowerCase() === key) {
+      window.open(hashMap[i].url);
+    }
+  }
 });
 },{}],"../../../AppData/Local/Yarn/Data/global/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -161,7 +208,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50484" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53206" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
