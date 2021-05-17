@@ -74,8 +74,6 @@ body {
 .searchForm>button {
     white-space: nowrap;
     padding: 0 28px;
-    border: 1px solid #ddd;
-    border: none;
     border-radius: 10px;
     background: pink;
     color: white;
